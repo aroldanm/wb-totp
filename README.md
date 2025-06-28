@@ -216,6 +216,70 @@ At 12:00:31, the token changes automatically:
 
 ---
 
+## Security Considerations and Threats
+
+WB-TOTP leverages the same cryptographic foundations as standard TOTP (RFC 6238), but introduces new security and usability trade-offs due to its word-based, human-verifiable nature.
+
+This section outlines the main threats, attack vectors, and recommended mitigations tailored to WB-TOTP.
+
+### Threat Vectors
+
+#### 1. Weak or Predictable Dictionaries
+If the dictionary:
+
+- Is too short (e.g. < 100 words),
+
+- uses predictable ordering (alphabetical),
+
+- or comes from a known/common wordlist (e.g. a public demo),
+
+...then the resulting tokens will have low entropy, leading to:
+
+- Repeated or predictable word combinations
+
+- Higher risk of token collisions
+
+- Offline brute-force attacks if the attacker obtains the dictionary
+
+##### Recommendations:
+
+- Use ≥100 unique words randomly selected from a larger pool
+
+- Ensure randomized word order
+
+- Never reuse the same dictionary across different users or sessions
+
+#### 2. Insecure Dictionary Distribution
+If the dictionary (in the URI secret field or QR code) is shared over insecure channels like email or unencrypted messaging, attackers may intercept it and generate valid tokens.
+
+##### Recommendations:
+
+- Share dictionaries only over secure, end-to-end encrypted channels
+
+- Prefer in-person QR scanning or secure key exchange
+
+- Treat the dictionary as you would treat a password or TOTP seed
+
+#### 3. Dictionary Reuse
+Reusing the same dictionary across multiple users or sessions enables token correlation and replay attacks, since the same words may be regenerated across interactions.
+
+##### Recommendations:
+
+- Generate a unique dictionary per pair or session
+
+- Rotate dictionaries regularly for long-term trust relationships
+
+#### 4. Time Drift and Desync
+As with TOTP, WB-TOTP depends on accurate clock synchronization. If client and verifier are more than one time-step apart, tokens will fail to match.
+
+##### Recommendations:
+
+- Ensure NTP or OS-level clock sync
+
+- Optionally allow a ±1 time-step tolerance in low-trust cases
+
+---
+
 ## Key Features
 
 🔐 Secure: Built on HMAC with support for SHA1/SHA256/SHA512
@@ -227,6 +291,72 @@ At 12:00:31, the token changes automatically:
 📱 Works on phones, CLI tools, and offline devices
 
 ♿ Boosts accessibility in real-world verbal interactions
+
+### Entropy and Token Strength
+In WB-TOTP, the strength of a token depends on two factors:
+
+- The size and uniqueness of the dictionary
+
+- The number of words used per token
+
+Each token represents a selection of n words chosen deterministically based on a secure HMAC. The larger the dictionary and the more words included in each token, the higher the entropy — which directly reduces the risk of collisions or offline brute-force attacks.
+
+#### Estimating Entropy
+
+Token entropy can be estimated as:
+```
+Entropy ≈ number of words × log₂(dictionary size)
+```
+
+For example:
+
+|Dictionary Size|2-word Token|3-word Token|4-word Token|
+|---|---|---|---|
+|100 words|~13.3 bits|~20 bits|~26.6 bits|
+|256 words|~16 bits|~24 bits|~32 bits|
+|512 words|~18 bits|~27 bits|~36 bits|
+
+Even 2-word tokens can be secure when combined with time-based expiration and human verbal validation. However, adding a third or fourth word provides stronger resistance against offline analysis or dictionary leaks — especially when tokens are used in higher-value or longer-lived authentication contexts.
+
+### Entropy Comparison: WB-TOTP vs Standard TOTP
+
+|Token Type|Dictionary Size|Number of Words / Digits|Entropy per Word / Digit (bits)|Total Entropy (bits)|Notes|
+|---|---|---|---|---|---|
+|WB-TOTP (2 words)|100|2 words|6.64|13.28|Lower than standard TOTP but usable with verbal validation and time sync|
+|WB-TOTP (3 words)|100|3 words|6.64|19.92|Close to entropy of 6-digit TOTP|
+|Standard TOTP (6 digits)|10 (digits 0-9)|6 digits|3.32|19.93|Common 6-digit numeric code|
+
+#### Key points:
+
+- A 2-word token from a 100-word dictionary provides around 13 bits of entropy, which is less than the typical 6-digit TOTP's ~20 bits.
+
+- However, WB-TOTP tokens are intended for human verbal verification with a short validity window, which significantly reduces the risk of brute force attacks.
+
+- Increasing the token length to 3 words brings entropy close to the 6-digit TOTP level (~20 bits).
+
+- Expanding the dictionary size beyond 100 words or using 4+ words per token can increase entropy further, offering stronger security when needed.
+
+This balance allows WB-TOTP to remain user-friendly and easy to communicate verbally while still providing a meaningful level of security for time-sensitive authentication.
+
+---
+
+## Accessibility and Localization
+
+To maximize the effectiveness of WB-TOTP in diverse real-world scenarios, special attention should be given to accessibility and localization of the word dictionary.
+
+### Language and Cultural Adaptation
+
+- **Localized Wordlists:** Generate word dictionaries tailored to the users’ native languages and cultural context. This ensures that words are easy to pronounce, remember, and understand, reducing errors during verbal communication.
+
+- **Phonetic Simplicity:** Select words that are phonetically distinct and have minimal risk of confusion with similar-sounding words in the target language, especially in noisy or low-quality audio environments.
+
+- **Avoid Ambiguous or Offensive Terms:** Ensure the dictionary excludes words that might be ambiguous, confusing, or culturally sensitive to maintain trust and clarity.
+
+### Accessibility Considerations
+
+- **Pronunciation for People with Speech or Hearing Impairments:** Consider alternative wordlists or token generation methods that accommodate users with speech impediments or hearing difficulties, such as simpler syllables or providing visual backup options.
+
+- **Support for Multilingual Users:** For users fluent in multiple languages, allow switching dictionaries or combining words from multiple languages that are mutually understandable to the communicating parties.
 
 ---
 
