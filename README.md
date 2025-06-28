@@ -280,18 +280,6 @@ As with TOTP, WB-TOTP depends on accurate clock synchronization. If client and v
 
 ---
 
-## Key Features
-
-🔐 Secure: Built on HMAC with support for SHA1/SHA256/SHA512
-
-⏱ Time-synced: Just like TOTP, tokens are time-dependent
-
-🧠 Human-optimized: Pronounceable, understandable, memorable
-
-📱 Works on phones, CLI tools, and offline devices
-
-♿ Boosts accessibility in real-world verbal interactions
-
 ### Entropy and Token Strength
 In WB-TOTP, the strength of a token depends on two factors:
 
@@ -360,7 +348,19 @@ To maximize the effectiveness of WB-TOTP in diverse real-world scenarios, specia
 
 ---
 
-## Comparison with others 2FA methods
+## Key Features
+
+🔐 Secure: Built on HMAC with support for SHA1/SHA256/SHA512
+
+⏱ Time-synced: Just like TOTP, tokens are time-dependent
+
+🧠 Human-optimized: Pronounceable, understandable, memorable
+
+📱 Works on phones, CLI tools, and offline devices
+
+♿ Boosts accessibility in real-world verbal interactions
+
+### Comparison with others 2FA methods
 
 |Feature|TOTP/HOTP|WB-TOTP|
 |---|---|---|
