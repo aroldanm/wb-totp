@@ -2,8 +2,8 @@
 
 **WB-TOTP** is a human-friendly alternative to the standard TOTP (RFC 6238) that generates **time-based one-time passwords using readable words** instead of numeric codes.
 
-> ✅ Uses the same time-based HMAC logic as TOTP  
-> ✅ But outputs tokens like `moon-coffee` that are easier to say, hear, and remember
+> Use the same time-based HMAC logic as TOTP  
+> Use tokens like `moon-coffee` as outputs that are easier to say, hear, and remember
 
 ---
 
@@ -54,7 +54,7 @@ With modern AI, anyone's voice can be cloned. Trusting a voice alone is no longe
 
 Before two users can verify each other using WB-TOTP, they must share a common dictionary of words:
 
-1. A **unique dictionary** (list of words) is generated with 100 or more simple words, in an **unique ordered list**. This dictionary is **encoded in base32**, creating a compact and secure string.
+1. A **unique dictionary** (list of words) is generated with 100 or more simple words, in a **unique ordered list**. This dictionary is **encoded in base32**, creating a compact and secure string.
 
 Example:
 ```
@@ -68,44 +68,9 @@ ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg==
 
 ```
 
-2. A WB-TOTP URI is created containing the encoded dictionary and relevant configuration parameters. This URI is shared with the other user, who stores the dictionary locally and securelly.
+2. A WB-TOTP URI is created containing the encoded dictionary and relevant configuration parameters. This URI is shared with the other user, who stores the dictionary locally and securely.
 
 Once both users have the same dictionary, they can independently generate synchronized word tokens based on time.
-
-#### URI Format
-
-WB-TOTP extends the otpauth:// URI format with the following structure:
-
-```
-otpauth://wbtotp/[LABEL]?secret=[DICTIONARY]&issuer=[ISSUER]&algorithm=[ALGORITHM]&words=[WORDS]&period=[PERIOD]
-
-```
-| Parameter | Description | Is required |
-|---|---|---|
-|`LABEL`|Name or identifier of the recipient — the person whose identity will be verified|YES|
-|`DICTIONARY`|A `BASE32`-encoded string containing the shared and ordered dictionary used to generate the tokens|YES|
-|`ISSUER`|Name or identifier of the sender — the person who generated and shared the dictionary|YES|
-|`ALGORITHM`|Hash algorithm used to generate tokens. Default: `SHA1`. Alternatives: `SHA256`, `SHA512`|NO|
-|`WORDS`|Number of words per token. Default: `2`. Must be ≥1|NO|
-|`PERIOD`|Duration of each token in seconds. Default: `30`. Alternatives: `60`|NO|
-
-##### Examples
-
-This URI represents a dictionary created by David, intended to verify the identity of Pablo, using 2 words per token, with a new token generated every 30 seconds.
-
-```
-otpauth://wbtotp/Pablo?secret=ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg==&issuer=David&algorithm=SHA1&words=2&period=30
-```
-
-or short URI
-
-```
-otpauth://wbtotp/Pablo?secret=ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg&issuer=David
-```
-
-#### Recomendations
-
-Sharing information using a QR code is a better option than using the URI directly, since the base32 hash generated can be very large and complet to share as a link or text.
 
 
 ### ⬇️ Verify the identity
@@ -155,8 +120,83 @@ Token = "cat-sun"
 ```
 Because the input values (dictionary, time, algorithm, period) are exactly the same on both devices, the output token will match — without any online communication.
 
+---
+
+## Dictionary Generation
+
+This is guidance on how to generate the dictionary of words, you can do another approach always following these rules. 
+
+Given two users want to connect, they:
+
+1. Randomly select 100 words or more.
+
+```
+// Original dictionary with 255 simple words
+
+"cat, dog, book, sun, tree, car, milk, ball, hat, fish, ..., crown" (255)
+
+// Select 100 random words from the base dictionary
+
+"apple, hat, bird, shoe, house, water, book, dog, lamp, ..., cat" (100)
+```
+
+2. Apply a random but deterministic order.
+
+```
+"lamp, bird, apple, house, dog, shoe, cat, water, hat, ..., book"
+```
+
+3. Encode it in Base32 to generate the dictionary secret.
+
+```
+// Base32-encoded dictionary
+
+ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoLCBsYW1wLCBiaXJkLCBhcHBsZSwgaG91c2UsIGRvZywgc2hvZSwgY2F0LCB3YXRlciwgaGF0LCBib29rLCAiY2F0LCBkb2csIGJvb2ssIHN1biwgdHJlZSwgY2FyLCBtaWxrLCBiYWxsLCBoYXQsIGZpc2gsIGxhbXAsIGJpcmQsIGFwcGxlLCBob3VzZSwgZG9nLCBzaG9lLCBjYXQsIHdhdGVyLCBoYXQsIGJvb2ssICJjYXQsIGRL==
+```
+
+Each user pair generates a unique dictionary, resulting in personalized tokens. This keeps each user-to-user channel secure and personalized.
+
+---
+
+#### URI Format
+
+WB-TOTP extends the otpauth:// URI format with the following structure:
+
+```
+otpauth://wbtotp/[LABEL]?secret=[DICTIONARY]&issuer=[ISSUER]&algorithm=[ALGORITHM]&words=[WORDS]&period=[PERIOD]
+
+```
+| Parameter | Description | Is required |
+|---|---|---|
+|`LABEL`|Name or identifier of the recipient — the person whose identity will be verified|YES|
+|`DICTIONARY`|A `BASE32`-encoded string containing the shared and ordered dictionary used to generate the tokens|YES|
+|`ISSUER`|Name or identifier of the sender — the person who generated and shared the dictionary|YES|
+|`ALGORITHM`|Hash algorithm used to generate tokens. Default: `SHA1`. Alternatives: `SHA256`, `SHA512`|NO|
+|`WORDS`|Number of words per token. Default: `2`. Must be ≥1|NO|
+|`PERIOD`|Duration of each token in seconds. Default: `30`. Alternatives: `60`|NO|
+
+##### Examples
+
+This URI represents a dictionary created by David, intended to verify the identity of Pablo, using 2 words per token, with a new token generated every 30 seconds.
+
+```
+otpauth://wbtotp/Pablo?secret=ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg==&issuer=David&algorithm=SHA1&words=2&period=30
+```
+
+or short URI
+
+```
+otpauth://wbtotp/Pablo?secret=ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg&issuer=David
+```
+
+#### Recommendations
+
+Sharing information via QR code is better than using the URI directly, since the base32 hash generated can be very large and complex to share as a link or text.
+
+---
+
 ### 🧪 Example
-Two users have the following WB-TOTP URI:
+Two users use the following WB-TOTP URI:
 
 ```
 otpauth://wbtotp/Pablo?secret=ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg==&issuer=David&algorithm=SHA1&words=2&period=30
@@ -176,42 +216,6 @@ At 12:00:31, the token changes automatically:
 
 ---
 
-## Dictionary Generation
-
-This is a guidance about how generate the dictionary of words, you can do other approach but always folling this rules. 
-
-Given two users want to connect, they:
-
-1. Randomly select 100 words or more.
-
-```
-// From the original dictionary with 255 simple words
-
-"cat, dog, book, sun, tree, car, milk, ball, hat, fish, ..., chrown (255)
-
-// Just select 100 random words
-
-"apple, hat, bird, shoe, house, water, book, dog, lamp, ..., cat (100)
-```
-
-3. Apply a random but deterministic order.
-
-```
-"lamp, bird, apple, house, dog, shoe, cat, water, hat, ..., book"
-```
-
-5. Encode it in Base32 to generate the dictionary secret.
-
-```
-// base32 dictionary
-
-ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoLCBsYW1wLCBiaXJkLCBhcHBsZSwgaG91c2UsIGRvZywgc2hvZSwgY2F0LCB3YXRlciwgaGF0LCBib29rLCAiY2F0LCBkb2csIGJvb2ssIHN1biwgdHJlZSwgY2FyLCBtaWxrLCBiYWxsLCBoYXQsIGZpc2gsIGxhbXAsIGJpcmQsIGFwcGxlLCBob3VzZSwgZG9nLCBzaG9lLCBjYXQsIHdhdGVyLCBoYXQsIGJvb2ssICJjYXQsIGRL==
-```
-
-Each connection generates a unique dictionary and thus unique tokens, this keeps each user-to-user channel secure and personalized.
-
----
-
 ## Key Features
 
 🔐 Secure: Built on HMAC with support for SHA1/SHA256/SHA512
@@ -226,7 +230,7 @@ Each connection generates a unique dictionary and thus unique tokens, this keeps
 
 ---
 
-## Comparison wich others 2FA
+## Comparison with others 2FA methods
 
 |Feature|TOTP/HOTP|WB-TOTP|
 |---|---|---|
