@@ -68,7 +68,7 @@ ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg==
 
 ```
 
-3. A WB-TOTP URI is created containing the encoded dictionary and relevant configuration parameters. This URI is shared with the other user, who stores the dictionary locally and securelly.
+2. A WB-TOTP URI is created containing the encoded dictionary and relevant configuration parameters. This URI is shared with the other user, who stores the dictionary locally and securelly.
 
 Once both users have the same dictionary, they can independently generate synchronized word tokens based on time.
 
@@ -129,7 +129,7 @@ ImNhdCwgZG9nLCBib29rLCBzdW4sIHRyZWUsIGNhciwgbWlsaywgYmFsbCwgaGF0LCBmaXNoIg==
 "cat, dog, book, sun, tree, car, milk, ball, hat, fish"
 ```
 
-3. Get current timestamp
+2. Get current timestamp
 Compute the current time interval based on the period (default: 30 seconds).
 
 ```
@@ -247,5 +247,6 @@ TBD
 ## Based on
 
 [RFC 6238 - Time-Based One-Time Passwords](https://datatracker.ietf.org/doc/html/rfc6238)
+
 [Google Authenticator URI format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format)
 
